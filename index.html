@@ -449,7 +449,8 @@
                     if (this.timer) clearInterval(this.timer);
                     this.responseTime = (Date.now() - this.startTime) / 1000;
                     this.isResponding = true;
-                    this.isCheckingKnowledge = true;
+                    // Skip knowledge check if the image is already a replacement
+                    this.isCheckingKnowledge = !this.currentImage.isReplacement;
                     this.$nextTick(() => lucide.createIcons());
                 },
 
@@ -464,10 +465,20 @@
                         }
 
                         if (replacement) {
-                            // Replace current image in the array for this session
-                            this.images[this.currentIdx] = replacement;
+                            // Mark as replacement to skip future checks for this image
+                            replacement.isReplacement = true;
+                            // Force update by replacing the item in the array
+                            this.images.splice(this.currentIdx, 1, replacement);
+                            
+                            // RESET TO PHASE 1 (Show image, Restart Timer, Show "Répondre" button)
+                            this.isResponding = false;
+                            this.isCheckingKnowledge = false;
+                            this.startTimer();
+                            this.$nextTick(() => lucide.createIcons());
+                            return;
                         }
                     }
+                    // If not known or no replacement available, proceed to Phase 3 (Prediction)
                     this.isCheckingKnowledge = false;
                     this.$nextTick(() => lucide.createIcons());
                 },
