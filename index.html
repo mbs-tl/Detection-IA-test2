@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Étude de Perception - Test 2 (Influence IA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-zinc-50 text-zinc-900 min-h-screen flex items-center justify-center p-4" x-data="testApp()">
+
+    <!-- CHARGEMENT -->
+    <template x-if="screen === 'loading'">
+        <div class="text-center">
+            <div class="animate-spin h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-zinc-600 font-medium" x-text="loadingStatus">Chargement...</p>
+        </div>
+    </template>
+
+    <!-- INTRODUCTION -->
+    <template x-if="screen === 'intro'">
+        <div class="w-full max-w-6xl bg-white rounded-3xl shadow-xl border border-zinc-100 overflow-hidden flex flex-col md:flex-row">
+            <div class="md:w-1/2 p-8 md:p-12 bg-indigo-600 text-white flex flex-col justify-center">
+                <div class="flex items-center gap-3 mb-8">
+                    <i data-lucide="brain-circuit" class="w-10 h-10"></i>
+                    <h1 class="text-3xl font-bold">Étude de Perception - V2</h1>
+                </div>
+                <p class="mb-6 text-indigo-100">Dans cette version, vous recevrez un retour d'un modèle d'IA après chaque réponse.</p>
+                <div class="space-y-4 text-sm">
+                    <div class="flex items-start gap-3"><span class="bg-white/20 px-2 rounded">1</span> <span>Observez l'image (30s).</span></div>
+                    <div class="flex items-start gap-3"><span class="bg-white/20 px-2 rounded">2</span> <span>Donnez votre premier avis.</span></div>
+                    <div class="flex items-start gap-3"><span class="bg-white/20 px-2 rounded">3</span> <span>Consultez l'avis de l'IA et confirmez ou changez votre choix.</span></div>
+                </div>
+            </div>
+
+            <div class="md:w-1/2 p-8 md:p-12 overflow-y-auto max-h-[90vh]">
+                <h2 class="text-2xl font-bold mb-6">Profil Testeur</h2>
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="email" x-model="userData.email" class="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm" placeholder="E-mail">
+                        <input type="number" x-model="userData.age" class="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm" placeholder="Âge">
+                        <select x-model="userData.sex" class="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm">
+                            <option value="Homme">Homme</option>
+                            <option value="Femme">Femme</option>
+                        </select>
+                        <input type="text" x-model="userData.expertise" class="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm" placeholder="Domaine d'expertise">
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-xs font-bold text-zinc-500 uppercase">Situations particulières (24h) :</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button @click="userData.recentIssues = 'oui'" :class="userData.recentIssues === 'oui' ? 'bg-indigo-600 text-white' : 'bg-zinc-100'" class="py-2 rounded-lg text-xs font-bold">Oui</button>
+                            <button @click="userData.recentIssues = 'non'" :class="userData.recentIssues === 'non' ? 'bg-indigo-600 text-white' : 'bg-zinc-100'" class="py-2 rounded-lg text-xs font-bold">Non</button>
+                            <button @click="userData.recentIssues = 'prefere_pas'" :class="userData.recentIssues === 'prefere_pas' ? 'bg-indigo-600 text-white' : 'bg-zinc-100'" class="py-2 rounded-lg text-xs font-bold">P.P.R</button>
+                        </div>
+                    </div>
+                    <button @click="startTest()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg">Commencer la démo</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- DEMO -->
+    <template x-if="screen === 'demo'">
+        <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-indigo-600 text-center mb-8">Démonstration Test 2</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div :class="demoStep === 1 ? 'opacity-100' : 'opacity-40'" class="flex gap-4">
+                        <div class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0">1</div>
+                        <p class="text-sm"><strong>Observation</strong> : Regardez l'image attentivement.</p>
+                    </div>
+                    <div :class="demoStep === 2 ? 'opacity-100' : 'opacity-40'" class="flex gap-4">
+                        <div class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0">2</div>
+                        <p class="text-sm"><strong>Premier Avis</strong> : Tranchez entre Réel ou IA.</p>
+                    </div>
+                    <div :class="demoStep === 3 ? 'opacity-100' : 'opacity-40'" class="flex gap-4">
+                        <div class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0">3</div>
+                        <p class="text-sm"><strong>Avis IA</strong> : Découvrez ce que l'IA pense et décidez si vous gardez votre avis ou si vous changez.</p>
+                    </div>
+                </div>
+                <div class="bg-zinc-50 p-6 rounded-2xl border-2 border-dashed border-zinc-200">
+                    <template x-if="demoStep === 1">
+                        <div class="space-y-4">
+                            <div class="aspect-video bg-zinc-200 rounded-lg overflow-hidden"><img src="https://picsum.photos/seed/test2/400/225" class="w-full h-full object-cover"></div>
+                            <button @click="demoStep = 2" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold">Répondre</button>
+                        </div>
+                    </template>
+                    <template x-if="demoStep === 2">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="p-2 border-2 border-emerald-500 bg-emerald-50 text-emerald-700 text-center rounded-lg text-xs font-bold">Réelle</div>
+                                <div class="p-2 border-2 border-zinc-100 text-zinc-300 text-center rounded-lg text-xs font-bold">IA</div>
+                            </div>
+                            <button @click="demoStep = 3" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold">Suivant</button>
+                        </div>
+                    </template>
+                    <template x-if="demoStep === 3">
+                        <div class="space-y-4">
+                            <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                <p class="text-[10px] text-indigo-700 font-bold">L'IA a prédit : <span class="uppercase">IA</span></p>
+                            </div>
+                            <p class="text-[10px] font-bold text-center">Voulez-vous changer d'avis ?</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="p-2 bg-white border border-zinc-200 text-[10px] font-bold rounded-lg">Oui</button>
+                                <button class="p-2 bg-indigo-600 text-white text-[10px] font-bold rounded-lg">Non</button>
+                            </div>
+                            <button @click="startRealTest()" class="w-full bg-zinc-900 text-white py-3 rounded-lg font-bold text-xs mt-4">C'est parti !</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- TEST -->
+    <template x-if="screen === 'test'">
+        <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="relative">
+                <div class="absolute top-4 right-4 bg-white/90 px-4 py-2 rounded-full shadow-lg font-bold" x-text="timeLeft + 's'"></div>
+                <div class="aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-200 shadow-2xl border-4 border-white flex items-center justify-center">
+                    <template x-if="!isResponding">
+                        <img :src="currentImage.url" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="isResponding">
+                        <div class="text-zinc-400 flex flex-col items-center gap-2">
+                            <i data-lucide="eye-off" class="w-12 h-12"></i>
+                            <span class="font-bold uppercase tracking-widest text-xs">Image Masquée</span>
+                        </div>
+                    </template>
+                </div>
+                <div class="mt-4 text-center text-sm font-medium text-zinc-400" x-text="'Image ' + (currentIdx + 1) + ' / ' + images.length"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl p-8 border border-zinc-100 flex flex-col min-h-[500px]">
+                <!-- PHASE 1: REPONDRE -->
+                <template x-if="!isResponding">
+                    <div class="flex-1 flex flex-col justify-center items-center text-center space-y-6">
+                        <h3 class="text-2xl font-bold">Analysez l'image</h3>
+                        <button @click="handleRespondClick()" class="w-full bg-indigo-600 text-white font-bold py-6 rounded-2xl shadow-lg text-xl active:scale-95 transition-transform">Répondre</button>
+                    </div>
+                </template>
+
+                <!-- PHASE 2: PREDICTION INITIALE -->
+                <template x-if="isResponding && !isShowingAIAdvice">
+                    <div class="flex-1 flex flex-col">
+                        <h2 class="text-xl font-bold mb-6">Votre premier avis :</h2>
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <button @click="prediction = 'Réelle'" :class="prediction === 'Réelle' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-zinc-100 text-zinc-400'" class="py-4 rounded-2xl font-bold border-2 transition-all">Réelle</button>
+                            <button @click="prediction = 'IA'" :class="prediction === 'IA' ? 'bg-amber-50 border-amber-500 text-amber-700' : 'bg-white border-zinc-100 text-zinc-400'" class="py-4 rounded-2xl font-bold border-2 transition-all">IA</button>
+                        </div>
+
+                        <template x-if="prediction === 'IA'">
+                            <div class="mb-6">
+                                <p class="text-xs font-bold text-zinc-500 mb-2 uppercase">Pourquoi ?</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="r in reasons" :key="r.id">
+                                        <button @click="toggleReason(r.label)" :class="selectedReasons.includes(r.label) ? 'bg-indigo-600 text-white' : 'bg-zinc-50'" class="px-3 py-1 rounded-lg text-[10px] font-medium border" x-text="r.label"></button>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="flex justify-between text-xs font-bold"><span>Confiance</span> <span class="text-indigo-600" x-text="confidence + '%'"></span></div>
+                            <input type="range" min="50" max="100" x-model="confidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <button @click="showAIAdvicePhase()" class="mt-auto bg-zinc-900 text-white font-bold py-4 rounded-2xl">Suivant</button>
+                    </div>
+                </template>
+
+                <!-- PHASE 3: AVIS IA ET CHANGEMENT -->
+                <template x-if="isShowingAIAdvice">
+                    <div class="flex-1 flex flex-col justify-center">
+                        <div class="bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-100 mb-8 text-center">
+                            <p class="text-sm text-indigo-900 mb-2">Le modèle IA a prédit que c'est une image :</p>
+                            <p class="text-2xl font-black text-indigo-600 uppercase" x-text="currentImage.aiAdvice"></p>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-center mb-6">Voulez-vous changer d'avis ?</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <button @click="changeMind = 'oui'" :class="changeMind === 'oui' ? 'bg-indigo-600 text-white' : 'bg-white border-zinc-200'" class="py-4 rounded-2xl font-bold border-2 transition-all">Oui, je change</button>
+                            <button @click="changeMind = 'non'" :class="changeMind === 'non' ? 'bg-indigo-600 text-white' : 'bg-white border-zinc-200'" class="py-4 rounded-2xl font-bold border-2 transition-all">Non, je garde</button>
+                        </div>
+
+                        <button @click="nextImage()" class="bg-zinc-900 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-transform">Confirmer et Continuer</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <!-- FINISH / SURVEY (Identique au Test 1 mais vers test2) -->
+    <template x-if="screen === 'survey'">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold mb-8 text-center">Questions finales</h2>
+            <div class="space-y-6">
+                <button @click="finishTest()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl">Terminer l'étude</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function testApp() {
+            return {
+                screen: 'loading',
+                loadingStatus: 'Initialisation...',
+                REPO_PATH: "mbs-tl/Detection-IA-test2",
+                SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxmH-dnqHSGo9IegIZxM2YqQ6R-mCy66qaoolVV1IN-pXaAYTc11IiWk5xRoy5_eX-5/exec",
+                
+                userData: { email: '', age: '', sex: 'Homme', expertise: '', recentIssues: 'non' },
+                surveyData: { difficulty: 'Moyenne', enoughTime: 'Oui' },
+                
+                images: [],
+                currentIdx: 0,
+                timeLeft: 30,
+                timer: null,
+                isResponding: false,
+                isShowingAIAdvice: false,
+                prediction: null,
+                changeMind: null,
+                selectedReasons: [],
+                confidence: 75,
+                startTime: null,
+                responseTime: null,
+                demoStep: 0,
+                
+                reasons: [
+                    { id: 'lighting', label: 'Éclairage' }, { id: 'background', label: 'Arrière-plan' },
+                    { id: 'anatomy', label: 'Anatomie' }, { id: 'objects', label: 'Objets' },
+                    { id: 'cohesiveness', label: 'Cohérence' }, { id: 'textures', label: 'Textures' },
+                    { id: 'other', label: 'Autre' }
+                ],
+
+                init() {
+                    this.fetchImages();
+                },
+
+                async fetchImages() {
+                    try {
+                        this.loadingStatus = "Récupération des images...";
+                        const fetchFolder = async (path, type) => {
+                            const res = await fetch(`https://api.github.com/repos/${this.REPO_PATH}/contents/${path}`);
+                            const files = await res.json();
+                            const imageFiles = files.filter(f => /\.(jpe?g|png|webp)$/i.test(f.name));
+                            const textFiles = files.filter(f => /\.txt$/i.test(f.name));
+                            
+                            return Promise.all(imageFiles.map(async img => {
+                                const baseName = img.name.split('.').slice(0, -1).join('.');
+                                const txtFile = textFiles.find(t => t.name.startsWith(baseName));
+                                let aiAdvice = "Indisponible";
+                                if (txtFile) {
+                                    try {
+                                        const tRes = await fetch(txtFile.download_url);
+                                        aiAdvice = await tRes.text();
+                                    } catch(e) {}
+                                }
+                                return { url: img.download_url, type, aiAdvice: aiAdvice.trim() };
+                            }));
+                        };
+
+                        const [reelles, ia] = await Promise.all([
+                            fetchFolder('im_real', 'Réelle'),
+                            fetchFolder('im_ia', 'IA')
+                        ]);
+
+                        this.images = [...reelles, ...ia].sort(() => Math.random() - 0.5);
+                        this.screen = 'intro';
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch (err) {
+                        alert("Erreur de chargement : " + err.message);
+                    }
+                },
+
+                startTest() {
+                    if (!this.userData.email || !this.userData.age) return alert("Remplissez les champs !");
+                    this.screen = 'demo';
+                    this.demoStep = 1;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                startRealTest() {
+                    this.screen = 'test';
+                    this.currentIdx = 0;
+                    this.startTimer();
+                },
+
+                startTimer() {
+                    if (this.timer) clearInterval(this.timer);
+                    this.timeLeft = 30;
+                    this.startTime = Date.now();
+                    this.timer = setInterval(() => {
+                        this.timeLeft--;
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timer);
+                            this.handleRespondClick();
+                        }
+                    }, 1000);
+                },
+
+                handleRespondClick() {
+                    if (this.timer) clearInterval(this.timer);
+                    this.responseTime = (Date.now() - this.startTime) / 1000;
+                    this.isResponding = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                showAIAdvicePhase() {
+                    if (!this.prediction) return alert("Choisissez Réelle ou IA");
+                    this.isShowingAIAdvice = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                toggleReason(label) {
+                    this.selectedReasons = this.selectedReasons.includes(label) 
+                        ? this.selectedReasons.filter(r => r !== label) 
+                        : [...this.selectedReasons, label];
+                },
+
+                nextImage() {
+                    if (!this.changeMind) return alert("Veuillez répondre à la question de l'IA");
+                    
+                    this.saveResult();
+                    
+                    if (this.currentIdx + 1 >= this.images.length) {
+                        this.screen = 'survey';
+                    } else {
+                        this.currentIdx++;
+                        this.resetState();
+                        this.startTimer();
+                    }
+                },
+
+                resetState() {
+                    this.prediction = null;
+                    this.changeMind = null;
+                    this.selectedReasons = [];
+                    this.confidence = 75;
+                    this.isResponding = false;
+                    this.isShowingAIAdvice = false;
+                    this.responseTime = null;
+                },
+
+                saveResult() {
+                    const data = {
+                        date: new Date().toLocaleString('fr-FR'),
+                        email: this.userData.email,
+                        img_url: this.currentImage.url,
+                        type: this.currentImage.type,
+                        prediction: this.prediction,
+                        temps_rep: this.responseTime.toFixed(2),
+                        raison: this.selectedReasons.join(', '),
+                        confiance: this.confidence,
+                        aiAdvice: this.currentImage.aiAdvice,
+                        changeMind: this.changeMind
+                    };
+
+                    fetch(this.SCRIPT_URL, {
+                        method: "POST",
+                        mode: 'no-cors',
+                        body: JSON.stringify(data)
+                    });
+                },
+
+                finishTest() {
+                    fetch(this.SCRIPT_URL, {
+                        method: "POST",
+                        mode: 'no-cors',
+                        body: JSON.stringify({ ...this.userData, difficulty: 'Moyenne', enoughTime: 'Oui' })
+                    });
+                    this.screen = 'finish';
+                },
+
+                get currentImage() {
+                    return this.images[this.currentIdx] || { url: '', type: '', aiAdvice: '' };
+                }
+            }
+        }
+    </script>
+</body>
+</html>
