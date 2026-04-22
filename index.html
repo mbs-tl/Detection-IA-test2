@@ -283,7 +283,12 @@
                                 <label class="text-zinc-500 uppercase">Confiance Initiale</label>
                                 <span class="text-indigo-600" x-text="confidence + '%'"></span>
                             </div>
-                            <input type="range" min="50" max="100" x-model="confidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
+                            <input type="range" min="50" max="100" step="5" x-model="confidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            <div class="flex justify-between px-1">
+                                <template x-for="n in [50, 60, 70, 80, 90, 100]">
+                                    <span class="text-[8px] text-zinc-400 font-bold" x-text="n + '%'"></span>
+                                </template>
+                            </div>
                         </div>
 
                         <button @click="showAIAdvicePhase()" class="mt-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95">Suivant</button>
@@ -303,7 +308,12 @@
                                 <label class="text-zinc-500 uppercase">Niveau de confiance final (0-100)</label>
                                 <span class="text-indigo-600" x-text="finalConfidence + '%'"></span>
                             </div>
-                            <input type="range" min="0" max="100" x-model="finalConfidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
+                            <input type="range" min="0" max="100" step="5" x-model="finalConfidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            <div class="flex justify-between px-1">
+                                <template x-for="n in [0, 20, 40, 60, 80, 100]">
+                                    <span class="text-[8px] text-zinc-400 font-bold" x-text="n + '%'"></span>
+                                </template>
+                            </div>
                             <p class="text-[10px] text-zinc-400 text-center italic">Comment l'avis de l'IA influence-t-il votre certitude ?</p>
                         </div>
 
@@ -364,7 +374,7 @@
                 loadingStatus: 'Initialisation...',
                 errorMessage: '',
                 REPO_PATH: "mbs-tl/Detection-IA-test2",
-                SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwzQGsMc9phP4NP-cdmvre1jI-DEtZLRrkJtwGB7W5M6zBr7ZKbzlt-fnFP3cmFB-CF/exec",
+                SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxmH-dnqHSGo9IegIZxM2YqQ6R-mCy66qaoolVV1IN-pXaAYTc11IiWk5xRoy5_eX-5/exec",
                 
                 userData: { email: '', age: '', sex: 'Homme', expertise: '', recentIssues: 'non' },
                 surveyData: { difficulty: 'Moyenne', enoughTime: 'Oui' },
