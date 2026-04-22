@@ -150,6 +150,7 @@
                     </template>
                     <template x-if="demoStep === 2">
                         <div class="space-y-4">
+                            <p class="text-[10px] text-center font-bold text-zinc-500 uppercase">Étape 2 : Premier Avis</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <button class="p-3 border-2 border-zinc-100 bg-white rounded-xl text-center text-xs font-bold text-zinc-400">Réelle</button>
                                 <button class="p-3 border-2 border-amber-500 bg-amber-50 rounded-xl text-center text-xs font-bold text-amber-700">IA</button>
@@ -166,11 +167,11 @@
 
                             <div class="space-y-2">
                                 <div class="flex justify-between text-[10px] font-bold">
-                                    <span class="text-zinc-400 uppercase">Confiance</span>
-                                    <span class="text-indigo-600">85%</span>
+                                    <span class="text-zinc-400 uppercase">Confiance Initiale</span>
+                                    <span class="text-indigo-600">75%</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                                    <div class="w-[85%] h-full bg-indigo-600"></div>
+                                    <div class="w-[75%] h-full bg-indigo-600"></div>
                                 </div>
                             </div>
 
@@ -178,17 +179,29 @@
                         </div>
                     </template>
                     <template x-if="demoStep === 3">
-                        <div class="space-y-6">
-                            <div class="bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-100 text-center">
-                                <p class="text-[10px] text-indigo-700 font-bold mb-1">L'IA a prédit :</p>
-                                <p class="text-lg font-black text-indigo-600 uppercase">IA</p>
+                        <div class="space-y-4">
+                            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center">
+                                <p class="text-[8px] text-indigo-700 font-bold mb-0.5">L'IA a prédit :</p>
+                                <p class="text-xs font-black text-indigo-600 uppercase">IA</p>
                             </div>
-                            <p class="text-xs font-bold text-center">Voulez-vous changer d'avis ?</p>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] font-bold">
+                                    <span class="text-zinc-400 uppercase font-bold">Confiance finale (0-100)</span>
+                                    <span class="text-indigo-600">90%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                                    <div class="w-[90%] h-full bg-indigo-600 animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <p class="text-[10px] text-center font-bold text-zinc-500">Changer d'avis ?</p>
                             <div class="grid grid-cols-2 gap-2">
                                 <button class="p-3 bg-white border-2 border-zinc-200 text-xs font-bold rounded-xl">Oui</button>
-                                <button class="p-3 bg-indigo-600 text-white text-xs font-bold rounded-xl">Non</button>
+                                <button class="p-3 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-md">Non</button>
                             </div>
-                            <button @click="startRealTest()" class="w-full bg-zinc-900 text-white font-bold py-4 rounded-xl shadow-xl active:scale-95 transition-transform">C'est parti !</button>
+
+                            <button @click="startRealTest()" class="w-full bg-zinc-900 text-white font-bold py-3 rounded-xl shadow-xl active:scale-95 transition-transform">C'est parti !</button>
                         </div>
                     </template>
                 </div>
@@ -267,7 +280,7 @@
 
                         <div class="space-y-4 mb-8">
                             <div class="flex justify-between items-center text-sm font-bold">
-                                <label class="text-zinc-500 uppercase">Confiance</label>
+                                <label class="text-zinc-500 uppercase">Confiance Initiale</label>
                                 <span class="text-indigo-600" x-text="confidence + '%'"></span>
                             </div>
                             <input type="range" min="50" max="100" x-model="confidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
@@ -277,12 +290,21 @@
                     </div>
                 </template>
 
-                <!-- PHASE 3: AVIS IA ET CHANGEMENT -->
+                <!-- PHASE 4: AVIS IA ET CONFIANCE FINALE -->
                 <template x-if="isShowingAIAdvice">
                     <div class="flex-1 flex flex-col justify-center">
-                        <div class="bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-100 mb-8 text-center">
+                        <div class="bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-100 mb-6 text-center">
                             <p class="text-sm text-indigo-900 mb-2">Le modèle IA a prédit que c'est une image :</p>
                             <p class="text-2xl font-black text-indigo-600 uppercase" x-text="currentImage.aiAdvice"></p>
+                        </div>
+
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between items-center text-sm font-bold">
+                                <label class="text-zinc-500 uppercase">Niveau de confiance final (0-100)</label>
+                                <span class="text-indigo-600" x-text="finalConfidence + '%'"></span>
+                            </div>
+                            <input type="range" min="0" max="100" x-model="finalConfidence" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
+                            <p class="text-[10px] text-zinc-400 text-center italic">Comment l'avis de l'IA influence-t-il votre certitude ?</p>
                         </div>
 
                         <h3 class="text-lg font-bold text-center mb-6">Voulez-vous changer d'avis ?</h3>
@@ -360,6 +382,7 @@
                 changeMind: null,
                 selectedReasons: [],
                 confidence: 75,
+                finalConfidence: 75,
                 startTime: null,
                 responseTime: null,
                 demoStep: 0,
@@ -511,6 +534,7 @@
                         this.changeMind = null;
                         this.selectedReasons = [];
                         this.confidence = 75;
+                        this.finalConfidence = 75;
                         this.isResponding = false;
                         this.isShowingAIAdvice = false;
                         this.responseTime = null;
@@ -528,7 +552,8 @@
                         prediction: this.prediction,
                         temps_rep: this.responseTime ? this.responseTime.toFixed(2) : "30.00",
                         raison: this.selectedReasons.join(', '),
-                        confiance: this.confidence,
+                        confiance_initiale: this.confidence,
+                        confiance_finale: this.finalConfidence,
                         aiAdvice: this.currentImage.aiAdvice,
                         changeMind: this.changeMind
                     };
