@@ -217,10 +217,10 @@
                     <i data-lucide="clock" class="w-4 h-4 text-zinc-600"></i>
                     <span class="font-mono font-bold" x-text="timeLeft + 's'"></span>
                 </div>
-                <div class="aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-200 shadow-2xl border-4 border-white flex items-center justify-center">
-                    <template x-if="!isResponding">
-                        <img :src="currentImage.url" class="w-full h-full object-contain">
-                    </template>
+                <div class="w-full rounded-3xl overflow-hidden bg-zinc-950 shadow-2xl border-4 border-white flex items-center justify-center min-h-[400px] lg:min-h-[500px]">
+    <template x-if="!isResponding">
+        <img :src="currentImage.url" class="w-full max-h-[70vh] object-contain">
+    </template>
                     <template x-if="isResponding">
                         <div class="w-full h-full bg-zinc-100 flex flex-col items-center justify-center text-zinc-400 p-8 text-center">
                             <i data-lucide="eye-off" class="w-12 h-12 mb-4"></i>
