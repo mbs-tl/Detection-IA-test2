@@ -218,16 +218,17 @@
                     <span class="font-mono font-bold" x-text="timeLeft + 's'"></span>
                 </div>
                 <div class="aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-950 shadow-2xl border-4 border-white flex items-center justify-center">
-    <template x-if="!isResponding">
-        <img :src="currentImage.url" class="w-full h-full object-cover">
-                 </template>
-                     <template x-if="isResponding">
-                       <div class="w-full h-full bg-zinc-100 flex flex-col items-center justify-center text-zinc-400 p-8 text-center">
-                           <i data-lucide="eye-off" class="w-12 h-12 mb-4"></i>
-                           <p class="font-bold uppercase tracking-widest text-xs">Image Masquée</p>
-                            <p class="text-[10px] mt-2 leading-relaxed">L'image est masquée pour garantir que votre réponse repose sur votre première impression.</p>
-                        </div>
-                   </template>
+  
+            <template x-if="!isResponding">
+                <img :src="currentImage.url" class="w-full h="isResponding">
+                <div class="w-full h-full bg-zinc-100 flex flex-col items-center justify-center text-zinc-400 p-8 text-center">
+                    <i data-lucide="eye-off" class="w-12 h-12 mb-4"></i>
+                    <p class="font-bold uppercase tracking-widest text-xs">Image Masquée</p>
+                    <p class="text-[10px] mt-2 leading-relaxed">
+                        L'image est masquée pour garantir que votre réponse repose sur votre première impression.
+                    </p>
+                </div>
+                </template>
                 </div>
                 <div class="mt-4 flex justify-between items-center px-2">
                     <span class="text-sm font-medium text-zinc-400" x-text="'Image ' + (currentIdx + 1) + ' / ' + images.length"></span>
